@@ -1,0 +1,43 @@
+## Defaults
+__pycache__
+.idea
+.DS_Store
+.deps
+.docs
+.env
+node_modules
+tenderly.yaml
+.mocharc.json
+venv
+out
+cache-forge
+lcov.info
+
+# Build output
+cache
+cache-hh
+build
+export
+**/artifacts
+.openzeppelin
+typechain
+
+
+# Test output
+coverage
+coverage.json
+
+# Running output
+gas-report.txt
+gasReporterOutput.json
+addresses.json
+yarn-error.log
+
+# deployments
+deployments/*
+!deployments/mainnet
+!deployments/polygon
+
+# bin
+bin
+
