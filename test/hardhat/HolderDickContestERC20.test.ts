@@ -11,7 +11,7 @@ import {
 import { parseAmount } from '../../utils/bignumber';
 import { expect } from './utils/chai-setup';
 import { inReceipt } from './utils/expectEvent';
-import { MAX_UINT256, ZERO_ADDRESS } from './utils/helpers';
+import { expectApprox, MAX_UINT256, ZERO_ADDRESS } from './utils/helpers';
 
 describe('HolderDickContestERC20', () => {
   let deployer: SignerWithAddress;
@@ -48,4 +48,58 @@ describe('HolderDickContestERC20', () => {
       expect(await hdc.symbol()).to.be.equal('usdc-hdc');
     });
   });
+
+  describe('deposit, mint', () => {
+    it('success - after deposit', async () => {
+      const receipt = await (await hdc.connect(alice).deposit(parseUnits('1', 6), bob.address)).wait();
+      expect(await hdc.balanceOf(bob.address)).to.be.equal(parseEther('1'));
+      expect(await usdc.balanceOf(alice.address)).to.be.equal(parseUnits('999', 6));
+      inReceipt(receipt, 'Deposit', {
+        caller: alice.address,
+        owner: bob.address,
+        assets: parseUnits('1', 6),
+        shares: parseEther('1'),
+      });
+    });
+    it('success - after mint', async () => {
+      const receipt = await (await hdc.connect(alice).mint(parseEther('1'), bob.address)).wait();
+      expect(await hdc.balanceOf(bob.address)).to.be.equal(parseEther('1'));
+      expect(await usdc.balanceOf(alice.address)).to.be.equal(parseUnits('999', 6));
+      inReceipt(receipt, 'Deposit', {
+        caller: alice.address,
+        owner: bob.address,
+        assets: parseUnits('1', 6),
+        shares: parseEther('1'),
+      });
+    });
+  });
+  describe('maxWithdraw', () => {
+    it('success', async () => {
+      await hdc.connect(alice).mint(parseEther('1'), bob.address);
+      expect(await hdc.maxWithdraw(bob.address)).to.be.equal(parseUnits('0.99', 6));
+      expect(await hdc.maxWithdraw(alice.address)).to.be.equal(parseUnits('0', 6));
+    });
+  });
+  describe('maxRedeem', () => {
+    it('success', async () => {
+      await hdc.connect(alice).mint(parseEther('1'), bob.address);
+      expect(await hdc.maxRedeem(bob.address)).to.be.equal(parseEther('1'));
+      expect(await hdc.maxRedeem(alice.address)).to.be.equal(parseEther('0'));
+    });
+  });
+  describe('previewWithdraw', () => {
+    it('success', async () => {
+      expectApprox(await hdc.previewWithdraw(parseUnits('100', 6)), parseEther('101'), 0.1);
+    });
+  });
+  describe('previewRedeem', () => {
+    it('success', async () => {
+      expect(await hdc.previewRedeem(parseEther('100'))).to.be.equal(parseUnits('99', 6));
+    });
+  });
+  /*
+  TODO
+  - last to leave then someone comes back
+  - handleUserGain = 0
+  */
 });
