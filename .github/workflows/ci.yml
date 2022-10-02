@@ -12,7 +12,7 @@ on:
         required: true
         options:
           - all
-          - run-compile
+          - run-tests
   pull_request:
     types:
       - ready_for_review
@@ -49,7 +49,7 @@ jobs:
       - name: Run eslint
         run: yarn lint:js:fix
 
-  run-compile:
+  run-tests:
     if: github.ref == 'refs/heads/main' || github.event.inputs.workflow_to_run == 'all' || github.event.inputs.workflow_to_run == 'unit_tests' || github.event.review.state == 'approved' || github.event.action == 'ready_for_review' || github.event.action == 'review_requested'
     runs-on: ubuntu-latest
     steps:
@@ -77,4 +77,3 @@ jobs:
         env:
           ENABLE_GAS_REPORT: true
           CI: true
-          ETH_NODE_URI_FORK: ${{secrets.ETH_NODE_URI_FORK}}

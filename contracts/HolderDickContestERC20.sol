@@ -72,6 +72,7 @@ contract HolderDickContestERC20 is ERC4626 {
 
     /// @notice Computes the current amount of locked profit
     /// @dev This function is what effectively vests profits going to remaining users
+    /// @dev Vesting profit reduces profitability of sandwich attacks
     function lockedProfit() public view virtual returns (uint256) {
         // Getting the last update and vesting period
         uint256 _lastUpdate = lastUpdate;

@@ -50,7 +50,7 @@ contract HDCFactory {
     constructor(ICoreBorrow _coreBorrow) {
         if (address(_coreBorrow) == address(0)) revert ZeroAddress();
         coreBorrow = _coreBorrow;
-        supportedVestingPeriods[24 * 7 * 3600] = true;
+        supportedVestingPeriods[24 * 3600] = true;
         supportedFees[10000000] = true;
     }
 
@@ -60,13 +60,13 @@ contract HDCFactory {
         address asset,
         uint64 fees,
         uint64 vestingPeriod
-    ) external {
+    ) external returns (address deployed) {
         if (hdcFactory[asset][fees] != address(0) || !supportedFees[fees] || !supportedVestingPeriods[vestingPeriod])
             revert InvalidCall();
-        HolderDickContestERC20 deployed = new HolderDickContestERC20(IERC20Metadata(asset), fees, vestingPeriod);
-        hdcFactory[asset][fees] = address(deployed);
-        hdcContractList.push(address(deployed));
-        emit NewHDCContract(asset, fees, vestingPeriod, address(deployed));
+        deployed = address(new HolderDickContestERC20(IERC20Metadata(asset), fees, vestingPeriod));
+        hdcFactory[asset][fees] = deployed;
+        hdcContractList.push(deployed);
+        emit NewHDCContract(asset, fees, vestingPeriod, deployed);
     }
 
     // ============================ Helper View Functions ==========================
